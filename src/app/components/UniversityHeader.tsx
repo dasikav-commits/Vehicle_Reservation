@@ -36,9 +36,30 @@ export function UniversityHeader({ role, onPageChange }: UniversityHeaderProps) 
   const { user } = useSession();
   const { unreadCount, unreadMessages, markAllAsRead } = useNotifications();
 
-  // keep existing userName behavior (this header currently uses a placeholder)
+  // Load the signed-in user's name from /api/profile (falls back to "User")
   useEffect(() => {
-    void user?.email;
+    let cancelled = false;
+
+    async function loadName() {
+      // Prefer the session email as an immediate fallback while the profile loads
+      if (user?.email && !cancelled) {
+        setUserName((prev) => (prev === "User" ? user.email!.split("@")[0] : prev));
+      }
+      try {
+        const res = await fetch("/api/profile");
+        if (!res.ok) return;
+        const payload = await res.json();
+        const fullName = payload?.data?.full_name;
+        if (fullName && !cancelled) setUserName(fullName);
+      } catch {
+        // keep fallback name
+      }
+    }
+
+    loadName();
+    return () => {
+      cancelled = true;
+    };
   }, [user?.email]);
 
   const getInitials = (name: string) =>

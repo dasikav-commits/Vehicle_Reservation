@@ -6,11 +6,12 @@ import { MessagesPage } from "./MessagesPage";
 import { PreviousRequestsPage } from "./PreviousRequestsPage";
 import { AccountDetailsPage } from "./AccountDetailsPage";
 import { WelcomeBanner } from "./WelcomeBanner";
-import type { StudentPage } from "../UniversityDashboard";
+import type { StudentPage, UserRole } from "../UniversityDashboard";
 import { getUserRequests } from "@/lib/api";
 
 interface StudentDashboardProps {
   currentPage: StudentPage;
+  role?: UserRole;
 }
 
 type VehicleRequest = {
@@ -34,7 +35,7 @@ function formatDate(dateStr: string) {
   });
 }
 
-export function StudentDashboard({ currentPage }: StudentDashboardProps) {
+export function StudentDashboard({ currentPage, role = "student" }: StudentDashboardProps) {
   const [requests, setRequests] = useState<VehicleRequest[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(false);
 
@@ -79,7 +80,9 @@ export function StudentDashboard({ currentPage }: StudentDashboardProps) {
       {currentPage === "dashboard" && (
         <div className="space-y-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Student Dashboard</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {role === "lecturer" ? "Lecturer Dashboard" : "Student Dashboard"}
+            </h1>
             <p className="text-gray-600 mt-1">Track your vehicle request status</p>
           </div>
 
