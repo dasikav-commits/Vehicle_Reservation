@@ -72,12 +72,12 @@ interface UniversityDashboardProps {
 
 export function UniversityDashboard({ role }: UniversityDashboardProps) {
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
+  // Every role must land on its own Dashboard page after login:
+  // - student / lecturer  -> "dashboard"          (StudentDashboard view)
+  // - senior-officer      -> "senior-dashboard"   (SeniorOfficerDashboardPage)
+  // - all other admins    -> "dashboard"          (role-specific dashboard)
   const [currentPage, setCurrentPage] = useState<StudentPage | SeniorOfficerPage>(
-    role === "student" || role === "lecturer"
-      ? "reservation-form"
-      : role === "senior-officer"
-        ? "senior-dashboard"
-        : "dashboard"
+    role === "senior-officer" ? "senior-dashboard" : "dashboard"
   );
 
   const effectiveAdminPage: AdminPage | null =
@@ -172,7 +172,7 @@ export function UniversityDashboard({ role }: UniversityDashboardProps) {
               transition={{ duration: 0.3 }}
             >
               {role === "student" || role === "lecturer" ? (
-                <StudentDashboard currentPage={currentPage as StudentPage} />
+                <StudentDashboard currentPage={currentPage as StudentPage} role={role} />
               ) : (
                 renderAdminContent()
               )}
