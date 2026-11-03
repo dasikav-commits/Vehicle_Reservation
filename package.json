@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "setup": "npx pnpm install",
-    "dev": "next dev --turbo",
+    "setup": "npm install",
+    "dev": "next dev",
     "build": "prisma generate && next build",
     "postinstall": "prisma generate",
     "start": "next start",

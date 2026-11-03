@@ -1,35 +1,13 @@
+## Running the code
 
-  ## Running the code
-
-This repo includes a `pnpm-lock.yaml` and is built for a pnpm-based workflow. If you do not already have pnpm installed, install it globally first:
-
-```bash
-npm install -g pnpm
-```
-
-Then install dependencies:
+This project uses npm. From the project directory, install dependencies and start the development server:
 
 ```bash
-pnpm install
-```
-
-If you prefer to bootstrap dependencies from npm, use:
-
-```bash
-npm run setup
-```
-
-Start the development server:
-
-```bash
-pnpm dev
-```
-
-or:
-
-```bash
+npm install
 npm run dev
 ```
+
+The development server runs at [http://localhost:3000](http://localhost:3000).
 
 ### Sync existing Prisma users with Supabase Auth
 
@@ -40,4 +18,3 @@ npm run sync:supabase-auth
 ```
 
 This will populate `supabase_id` for existing Prisma records whose email matches a Supabase Auth user.
-  
