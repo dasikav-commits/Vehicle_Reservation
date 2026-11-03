@@ -16,6 +16,13 @@ import { Label } from "./components/ui/label";
 import { Alert, AlertDescription } from "./components/ui/alert";
 import { Car, Loader2, AlertCircle } from "lucide-react";
 
+function getLoginErrorMessage(message?: string) {
+  if (/failed to fetch|fetch failed|network|load failed|timed out|timeout/i.test(message ?? "")) {
+    return "Could not reach the sign-in service. Please check your internet connection and try again.";
+  }
+  return message || "An error occurred during login";
+}
+
 export default function LoginPage() {
   const router = useRouter();
 
@@ -51,7 +58,7 @@ export default function LoginPage() {
       console.log("LOGIN ERROR", error);
 
       if (error) {
-        setError(error.message);
+        setError(getLoginErrorMessage(error.message));
         return;
       }
 
@@ -60,7 +67,8 @@ export default function LoginPage() {
 
       router.push("/dashboard");
     } catch (err) {
-      setError("An error occurred during login");
+      const message = err instanceof Error ? err.message : typeof err === "string" ? err : undefined;
+      setError(getLoginErrorMessage(message));
     } finally {
       setLoading(false);
     }

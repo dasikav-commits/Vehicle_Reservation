@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { RequestDetailsDialog } from "./RequestDetailsDialog";
 
 type ApprovedRequestRow = {
   id: number;
@@ -31,11 +32,19 @@ type ApprovedRequestRow = {
   approved_at?: string | null;
   approval_status: string;
   allocation_status?: string | null;
+  request_type?: string | null;
   purpose?: string | null;
   vehicle_nature?: string | null;
+  number_of_persons?: number | null;
   distance_type?: string | null;
   travel_date_from?: string | null;
   travel_date_to?: string | null;
+  required_time_from?: string | null;
+  required_time_to?: string | null;
+  places_to_visit?: string | null;
+  travel_route?: string | null;
+  special_notes?: string | null;
+  rejection_reason?: string | null;
   request_letter_path?: string | null;
 };
 
@@ -351,7 +360,7 @@ export function DeanApprovedRequestsTable() {
                             }}
                           >
                             <Eye className="w-4 h-4 mr-1" />
-                            View
+                            View Details
                           </Button>
 
                         </td>
@@ -396,55 +405,23 @@ export function DeanApprovedRequestsTable() {
             </div>
           ) : null}
 
-          {selectedRequest ? (
-            <div className="p-5 border-t bg-white">
-              <div className="flex items-center justify-between gap-4 mb-4">
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">REQ-{selectedRequest.id}</h3>
-                  <p className="text-sm text-gray-600">{selectedRequest.requester?.full_name ?? "Unknown"}</p>
-                </div>
-                <Button variant="ghost" onClick={() => setSelectedRequest(null)}>
-                  Close
-                </Button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div>
-                  <div className="text-gray-500">Purpose</div>
-                  <div className="font-medium text-gray-900">{selectedRequest.purpose ?? "-"}</div>
-                </div>
-                <div>
-                  <div className="text-gray-500">Vehicle Nature</div>
-                  <div className="font-medium text-gray-900">{selectedRequest.vehicle_nature ?? "-"}</div>
-                </div>
-                <div>
-                  <div className="text-gray-500">Trip Type</div>
-                  <div className="font-medium text-gray-900">{selectedRequest.distance_type ?? "-"}</div>
-                </div>
-                <div>
-                  <div className="text-gray-500">Travel Dates</div>
-                  <div className="font-medium text-gray-900">
-                    {formatDate(selectedRequest.travel_date_from)} to {formatDate(selectedRequest.travel_date_to)}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-gray-500">Uploaded Letter</div>
-                  {selectedRequest.request_letter_path ? (
-                    <a
-                      href={`/api/vehicle-requests/${selectedRequest.id}/letter/view`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="font-medium text-orange-600 underline underline-offset-4 hover:text-orange-700"
-                    >
-                      Open PDF in browser
-                    </a>
-                  ) : (
-                    <div className="font-medium text-gray-900">No attachment</div>
-                  )}
-                </div>
-              </div>
-            </div>
-          ) : null}
+          <RequestDetailsDialog
+            request={selectedRequest}
+            open={selectedRequest !== null}
+            onClose={() => setSelectedRequest(null)}
+            statusLabel={
+              selectedRequest
+                ? requestStatusFromAllocation(selectedRequest.allocation_status)
+                : null
+            }
+            statusClass={
+              selectedRequest
+                ? `${statusBadgeClass(
+                    requestStatusFromAllocation(selectedRequest.allocation_status)
+                  )} rounded-full px-3 py-1`
+                : null
+            }
+          />
         </CardContent>
       </Card>
     </div>

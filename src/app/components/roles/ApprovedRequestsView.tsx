@@ -6,6 +6,7 @@ import { Eye, FileCheck } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
+import { RequestDetailsDialog } from "./RequestDetailsDialog";
 
 type ApprovedRequest = {
   id: number;
@@ -14,11 +15,19 @@ type ApprovedRequest = {
   approved_at?: string | null;
   approval_status: string;
   allocation_status?: string | null;
+  request_type?: string | null;
   travel_date_from?: string | null;
   travel_date_to?: string | null;
+  required_time_from?: string | null;
+  required_time_to?: string | null;
   purpose?: string | null;
   vehicle_nature?: string | null;
+  number_of_persons?: number | null;
+  places_to_visit?: string | null;
+  travel_route?: string | null;
   distance_type?: string | null;
+  special_notes?: string | null;
+  rejection_reason?: string | null;
   request_letter_path?: string | null;
 };
 
@@ -38,6 +47,19 @@ function tripStatusFromAllocation(allocationStatus?: string | null, approvalStat
   if (allocationStatus === "allocated") return "Allocated";
   if (approvalStatus === "approved_for_allocation") return "Awaiting Allocation";
   return "-";
+}
+
+function tripBadgeClass(tripStatus: string) {
+  if (tripStatus === "Allocated") {
+    return "bg-emerald-100 text-emerald-800 border border-emerald-200";
+  }
+  if (tripStatus === "Awaiting Allocation") {
+    return "bg-amber-100 text-amber-800 border border-amber-200";
+  }
+  if (tripStatus === "Rejected") {
+    return "bg-rose-100 text-rose-800 border border-rose-200";
+  }
+  return "bg-gray-100 text-gray-800 border border-gray-200";
 }
 
 export function ApprovedRequestsView() {
@@ -119,14 +141,7 @@ export function ApprovedRequestsView() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {rows.map((r) => {
                     const tripStatus = tripStatusFromAllocation(r.allocation_status, r.approval_status);
-                    const badgeClass =
-                      tripStatus === "Allocated"
-                        ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                        : tripStatus === "Awaiting Allocation"
-                        ? "bg-amber-100 text-amber-800 border border-amber-200"
-                        : tripStatus === "Rejected"
-                        ? "bg-rose-100 text-rose-800 border border-rose-200"
-                        : "bg-gray-100 text-gray-800 border border-gray-200";
+                    const badgeClass = tripBadgeClass(tripStatus);
 
                     return (
                       <tr key={r.id} className="hover:bg-orange-50/40">
@@ -157,57 +172,23 @@ export function ApprovedRequestsView() {
         </Card>
       )}
 
-      {selectedRequest && (
-        <Card className="shadow-lg border-orange-200 bg-white">
-          <CardContent className="p-5 space-y-3">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h3 className="text-lg font-bold text-gray-900">REQ-{selectedRequest.id}</h3>
-                <p className="text-sm text-gray-600">{selectedRequest.requester?.full_name ?? "Unknown"}</p>
-              </div>
-              <Button variant="ghost" onClick={() => setSelectedRequest(null)}>
-                Close
-              </Button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <div className="text-gray-500">Purpose</div>
-                <div className="font-medium text-gray-900">{selectedRequest.purpose ?? "-"}</div>
-              </div>
-              <div>
-                <div className="text-gray-500">Vehicle Nature</div>
-                <div className="font-medium text-gray-900">{selectedRequest.vehicle_nature ?? "-"}</div>
-              </div>
-              <div>
-                <div className="text-gray-500">Trip Type</div>
-                <div className="font-medium text-gray-900">{selectedRequest.distance_type ?? "-"}</div>
-              </div>
-              <div>
-                <div className="text-gray-500">Travel Dates</div>
-                <div className="font-medium text-gray-900">
-                  {formatDate(selectedRequest.travel_date_from)} to {formatDate(selectedRequest.travel_date_to)}
-                </div>
-              </div>
-              <div>
-                <div className="text-gray-500">Uploaded Letter</div>
-                {selectedRequest.request_letter_path ? (
-                  <a
-                    href={`/api/vehicle-requests/${selectedRequest.id}/letter/view`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="font-medium text-orange-600 underline underline-offset-4 hover:text-orange-700"
-                  >
-                    Open PDF in browser
-                  </a>
-                ) : (
-                  <div className="font-medium text-gray-900">No attachment</div>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      <RequestDetailsDialog
+        request={selectedRequest}
+        open={selectedRequest !== null}
+        onClose={() => setSelectedRequest(null)}
+        statusLabel={
+          selectedRequest
+            ? tripStatusFromAllocation(selectedRequest.allocation_status, selectedRequest.approval_status)
+            : null
+        }
+        statusClass={
+          selectedRequest
+            ? tripBadgeClass(
+                tripStatusFromAllocation(selectedRequest.allocation_status, selectedRequest.approval_status)
+              )
+            : null
+        }
+      />
     </div>
   );
 }
